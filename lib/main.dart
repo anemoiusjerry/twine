@@ -1,9 +1,14 @@
 import 'package:flutter/material.dart';
 import 'package:firebase_core/firebase_core.dart';
+import 'package:twine/firebase_options.dart';
 import 'package:twine/screens/login_navigator.dart';
 
 
-void main() {
+void main() async {
+  WidgetsFlutterBinding.ensureInitialized();
+  await Firebase.initializeApp(
+    options: DefaultFirebaseOptions.currentPlatform, 
+  );
   runApp(const TwineApp());
 }
 
@@ -19,21 +24,7 @@ class TwineApp extends StatelessWidget {
         colorScheme: ColorScheme.fromSeed(seedColor: Colors.deepPurple),
         useMaterial3: true,
       ),
-      home: FutureBuilder(
-        future: Firebase.initializeApp(), 
-        builder: (context, snapshot) {
-          if (snapshot.hasError) {
-            return const Center(child: Text('Error'));
-          }
-          if (snapshot.connectionState == ConnectionState.done) {
-            return const LoginNavigator();
-          }
-          // show loading icon while waiting
-          return const Center(child: SizedBox(
-            child: CircularProgressIndicator(),
-          ),);
-        }
-      ),
+      home: const LoginNavigator()
     );
   }
 }

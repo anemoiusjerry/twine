@@ -4,10 +4,17 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter_pw_validator/flutter_pw_validator.dart';
 
 class SignUpPage extends StatefulWidget {
-  const SignUpPage({super.key, required this.onBackPress, required this.checkValidEmail});
+  const SignUpPage({
+    super.key, 
+    required this.onBackPress, 
+    required this.checkValidEmail,
+    required this.showSnackBar,
+  });
 
   final VoidCallback onBackPress;
   final bool Function(String?) checkValidEmail;
+  final void Function(BuildContext, String) showSnackBar;
+
   @override
   State<SignUpPage> createState() => _SignUpPageState();
 }
@@ -60,8 +67,8 @@ class _SignUpPageState extends State<SignUpPage> {
         });
 
         final credential = await FirebaseAuth.instance.createUserWithEmailAndPassword(
-          email: email, 
-          password: password
+          email: email.trim(),
+          password: password.trim(),
         );
 
         setState(() {
@@ -85,28 +92,19 @@ class _SignUpPageState extends State<SignUpPage> {
         });
         // weak password == password requirements not met
         if (e.code == 'weak-password') {
-          ScaffoldMessenger.of(context).showSnackBar( 
-            const SnackBar(
-              content: Text("The password provided is too weak."),
-              duration: Duration(seconds: 2),
-            ),
-          );
+          widget.showSnackBar(context, "The password provided is too weak.");
         } else if (e.code == 'email-already-in-use') {
-          ScaffoldMessenger.of(context).showSnackBar( 
-            const SnackBar(
-              content: Text("An account already exists for that email."),
-              duration: Duration(seconds: 2),
-            ),
-          );
+          widget.showSnackBar(context, "An account already exists for that email.");
+        } else {
+          widget.showSnackBar(context, e.message ?? "Unknown error has ocurred.");
         }
       } catch (e) {
         setState(() {
           isSubmitting = false;
         });
+
         print(e);
-        ScaffoldMessenger.of(context).showSnackBar( 
-          const SnackBar(content: Text("An error has occurred, please try again later.")),
-        );
+        widget.showSnackBar(context, "An error has occurred, please try again later.");
       }
     }
   }
