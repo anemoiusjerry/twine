@@ -4,6 +4,8 @@ import 'package:flutter_analog_clock/flutter_analog_clock.dart';
 import 'package:twine/widgets/love_counter.dart';
 
 class HomeScreen extends StatelessWidget {
+  const HomeScreen({super.key});
+
   @override
   Widget build(BuildContext context) {
     return SafeArea(
@@ -25,13 +27,9 @@ class HomeScreen extends StatelessWidget {
               )
             ),
             
-            Container(
-              width: 150,
-              margin: const EdgeInsets.only(top: 25, left: 10),
-              child: const Flexible(
-                child: Text('Jovana Jastrebic', 
-                style: TextStyle(fontWeight: FontWeight.bold, fontSize: 18))
-              )
+            const Flexible(
+              child: Text('Jovana Jastrebic', 
+              style: TextStyle(fontWeight: FontWeight.bold, fontSize: 18))
             ),
           ],
         ),

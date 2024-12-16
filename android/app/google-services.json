@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "227267590488",
+    "project_id": "twine-dev-27f81",
+    "storage_bucket": "twine-dev-27f81.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:227267590488:android:642b09710abe70cc2dcd2d",
+        "android_client_info": {
+          "package_name": "com.twine.app"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCPhXzM8MELlZkaOCJ-khRSdShul753x1c"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

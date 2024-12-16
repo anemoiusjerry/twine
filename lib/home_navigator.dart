@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:twine/screens/audio_log.dart';
 import 'package:twine/screens/home.dart';
 
 class HomeNavigator extends StatefulWidget {
@@ -19,24 +20,21 @@ class _HomeNavigatorState extends State<HomeNavigator> {
   Widget build(BuildContext context) {
     final ThemeData theme = Theme.of(context);
     return Scaffold(
-      bottomNavigationBar: NavigationBar(
-        indicatorColor: Colors.amber,
-        selectedIndex: screenIndex,
-        onDestinationSelected: _updateScreenIndex,
-        destinations: const <Widget>[
-          NavigationDestination(
-            selectedIcon: Icon(Icons.local_post_office),
-            icon: Icon(Icons.local_post_office_outlined), 
+      bottomNavigationBar: BottomNavigationBar(
+        currentIndex: screenIndex,
+        selectedItemColor: Colors.amber,
+        onTap: _updateScreenIndex,
+        items: const <BottomNavigationBarItem>[
+          BottomNavigationBarItem(
+            icon: Icon(Icons.local_post_office), 
             label: "Post Cards",
           ),          
-          NavigationDestination(
-            selectedIcon: Icon(Icons.home),
-            icon: Icon(Icons.home_outlined), 
+          BottomNavigationBarItem(
+            icon: Icon(Icons.home), 
             label: 'Home',
           ),
-          NavigationDestination(
-            selectedIcon: Icon(Icons.mic),
-            icon: Icon(Icons.mic_outlined), 
+          BottomNavigationBarItem(
+            icon: Icon(Icons.album), 
             label: 'Voice Messages',
           ),
         ]
@@ -56,19 +54,8 @@ class _HomeNavigatorState extends State<HomeNavigator> {
             ),
           ),
         ),
-        HomeScreen(),
-        Card(
-          shadowColor: Colors.transparent,
-          margin: const EdgeInsets.all(8.0),
-          child: SizedBox.expand(
-            child: Center(
-              child: Text(
-                'Voice messages',
-                style: theme.textTheme.titleLarge,
-              ),
-            ),
-          ),
-        ),
+        const HomeScreen(),
+        const AudioLogScreen(),
       ][screenIndex],
     );
   }
