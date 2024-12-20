@@ -1,5 +1,8 @@
 import 'dart:math';
 import 'package:flutter/material.dart';
+import 'package:popover/popover.dart';
+import 'package:twine/styles/colours.dart';
+import 'package:twine/widgets/countdown_timer.dart';
 
 class DonutData {
   const DonutData(this.colour, this.percent);
@@ -7,14 +10,16 @@ class DonutData {
   final double percent;
 }
 
+// Draws a 2 segment pie chart with text in the hollow center. It includes
+// a countdown timer and date picking functionality to send target date.
 class CountdownDonut extends StatefulWidget {
   // constructor shorthand
   const CountdownDonut({
     super.key,
-    this.radius = 50,
-    this.strokeWidth = 8,
-    this.voidColour = const Color(0xff949494),
-    this.highlightColour = const Color(0xff89F336),
+    this.radius = 60,
+    this.strokeWidth = 12,
+    this.voidColour = AppColours.gray,
+    this.highlightColour = AppColours.secondary,
     required this.reunionDate,
     required this.separationDate,
   });
@@ -55,15 +60,25 @@ class _CountdownDonutState extends State<CountdownDonut> {
 
   @override
   Widget build(BuildContext context) {
-    return CustomPaint(
-      painter: _Painter(widget.strokeWidth, slices),
-      size: Size.square(widget.radius),
-      child: SizedBox.square(
-        dimension: 2*widget.radius,
-        child: Center(
-          child: Text("${timeToReunion.inDays - timeApart.inDays} days left"),
+    return GestureDetector(
+      onTap: () {
+        showPopover(
+          context: context, 
+          bodyBuilder: (context) => CountdownTimer(endTime: widget.reunionDate),
+          direction: PopoverDirection.top,
+          arrowDyOffset: -20
+        );
+      },
+      child: CustomPaint(
+        painter: _Painter(widget.strokeWidth, slices),
+        size: Size.square(widget.radius),
+        child: SizedBox.square(
+          dimension: 2*widget.radius,
+          child: Center(
+            child: Text("${timeToReunion.inDays - timeApart.inDays} days left"),
+          )
         )
-      )
+      ),
     );
   }
 }
@@ -87,7 +102,7 @@ class _Painter extends CustomPainter {
     )).toList();
   }
 
-  static const _percentPadding = 4;
+  static const _percentPadding = 5;
   static const _percentRadians = 2*pi / 100;
   late final List<_PainterData> dataList;
 

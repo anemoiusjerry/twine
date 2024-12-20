@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:twine/firebase_options.dart';
 import 'package:twine/screens/login_navigator.dart';
+import 'package:twine/styles/colours.dart';
 
 
 void main() async {
@@ -21,7 +22,21 @@ class TwineApp extends StatelessWidget {
     return MaterialApp(
       title: 'Twine',
       theme: ThemeData(
-        colorScheme: ColorScheme.fromSeed(seedColor: Colors.deepPurple),
+        colorScheme: const ColorScheme(
+          brightness: Brightness.light, 
+          primary: AppColours.primary, 
+          onPrimary: Colors.white, 
+          secondary: AppColours.secondary, 
+          onSecondary: Colors.white, 
+          error: Colors.red, 
+          onError: Colors.white, 
+          surface: Colors.white, 
+          onSurface: Colors.black
+        ),
+        floatingActionButtonTheme: const FloatingActionButtonThemeData(
+          shape: CircleBorder(),
+          backgroundColor: AppColours.secondary, 
+        ),
         useMaterial3: true,
       ),
       home: const LoginNavigator()

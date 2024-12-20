@@ -34,7 +34,9 @@ class LoginNavigator extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context).colorScheme;
     final pageController = PageController();
+
     void navToPage(int index) {
       pageController.animateToPage(
         index, 
@@ -53,6 +55,7 @@ class LoginNavigator extends StatelessWidget {
           }
           else {
             return Scaffold(
+              backgroundColor: theme.primary,
               body: PageView(
                 controller: pageController,
                 physics: const NeverScrollableScrollPhysics(),

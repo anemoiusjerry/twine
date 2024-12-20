@@ -59,6 +59,8 @@ class _LoginPageState extends State<LoginPage> {
 
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context).colorScheme;
+
     return Center(
       child: Padding(
         padding: const EdgeInsets.all(40), 
@@ -69,10 +71,12 @@ class _LoginPageState extends State<LoginPage> {
             children: [
               TextFormField(
                 decoration: InputDecoration(
+                  filled: true,
+                  fillColor: Colors.white,
                   border: OutlineInputBorder(
                     borderRadius: BorderRadius.circular(30),
                   ),
-                  prefixIcon: const Icon(Icons.person),
+                  prefixIcon: Icon(Icons.person, color: theme.primary,),
                   hintText: "Email Address",
                 ),
                 onChanged: (text) {

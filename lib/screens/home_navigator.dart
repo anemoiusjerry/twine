@@ -20,22 +20,33 @@ class _HomeNavigatorState extends State<HomeNavigator> {
   Widget build(BuildContext context) {
     final ThemeData theme = Theme.of(context);
     return Scaffold(
+      appBar: AppBar(
+        actions: [
+          IconButton(
+            iconSize: 45,
+            onPressed: (){}, 
+            icon: const Icon(Icons.person_outline_rounded)
+          ),
+        ],
+      ),
       bottomNavigationBar: BottomNavigationBar(
         currentIndex: screenIndex,
-        selectedItemColor: Colors.amber,
         onTap: _updateScreenIndex,
+        showSelectedLabels: false,
+        showUnselectedLabels: false,
+        iconSize: 45,
         items: const <BottomNavigationBarItem>[
           BottomNavigationBarItem(
-            icon: Icon(Icons.local_post_office), 
-            label: "Post Cards",
+            icon: Icon(Icons.photo_library), 
+            label: "Cards",
           ),          
           BottomNavigationBarItem(
-            icon: Icon(Icons.home), 
+            icon: Icon(Icons.home_rounded), 
             label: 'Home',
           ),
           BottomNavigationBarItem(
-            icon: Icon(Icons.album), 
-            label: 'Voice Messages',
+            icon: Icon(Icons.album_outlined), 
+            label: 'Memos',
           ),
         ]
       ),
