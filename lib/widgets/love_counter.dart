@@ -33,9 +33,7 @@ class _LoveCounterState extends State<LoveCounter> {
   @override
   Widget build(BuildContext context) {
     return Container(
-       decoration: BoxDecoration(
-    border: Border.all(color: Colors.transparent, width: 2), // Blue border for bounding box
-  ),
+      decoration: BoxDecoration(border: Border.all(color: Colors.transparent, width: 2),),
       child: CustomPaint(
       painter: _Painter(widget.colour, widget.borderColour, widget.borderWidth),
       size: const Size(150, 150),

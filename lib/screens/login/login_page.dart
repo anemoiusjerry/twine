@@ -25,41 +25,24 @@ class _LoginPageState extends State<LoginPage> {
   String password = "";
   final _formKey = GlobalKey<FormState>();
 
-  _handleLogin() async {
+  _handleLogin(BuildContext context) async {
     try {
       if (_formKey.currentState!.validate()) {
         await FirebaseAuth.instance.signInWithEmailAndPassword(
           email: email.trim(),
           password: password.trim(),
         );
-        
-        // check if user needs to setup a couple
-        var userRepo = UserRepository(FirebaseFirestore.instance);
-        TwineUser? user = await userRepo.get(FirebaseAuth.instance.currentUser?.uid ?? "");
-
-        if (user != null) {
-          userRepo.update(email, {'lastActivity': Timestamp.now()});
-          if (user.coupleId == null) {
-            widget.flipPage(2);
-          }
-        } else {
-        // Prompt user to sign up, but this should be caught in catch section
-          widget.flipPage(1);
-        }
       }
     } on FirebaseAuthException catch (e) {
       // ONLY will receive 'INVALID_LOGIN_CREDENTIALS' due to email enumeration
-      print(e);
-      if (e.code == 'user-not-found') {
-        widget.showSnackBar(context, "No user found for that email.");
-      } else if (e.code == 'wrong-password') {
-        widget.showSnackBar(context, "Wrong password provided for that user.");
-      } else {
+      if (context.mounted) {
         widget.showSnackBar(context, e.message ?? "Unknown error has ocurred.");
       }
     } catch (e) {
       print(e);
-      widget.showSnackBar(context, "An error has occurred, please try again later.");
+      if (context.mounted) {
+        widget.showSnackBar(context, "An error has occurred, please try again later.");
+      }
     }
   }
 
@@ -103,7 +86,7 @@ class _LoginPageState extends State<LoginPage> {
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
                   OutlinedButton(
-                    onPressed: _handleLogin, 
+                    onPressed: () => _handleLogin(context), 
                     child: const Text("Log In", style: TextStyle(color: Colors.white, fontSize: 20),)
                   ),
                   const SizedBox(width: 10,),

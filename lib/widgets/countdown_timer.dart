@@ -55,6 +55,8 @@ void showDateTimePicker(BuildContext context) async {
       );
     }
   );
-  // exit out of the popover
-  Navigator.of(context).pop();
+  if (context.mounted) {
+    // exit out of the popover
+    Navigator.of(context).pop();
+  }
 }

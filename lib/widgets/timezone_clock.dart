@@ -27,12 +27,8 @@ class _TimezoneClockState extends State<TimezoneClock> {
     final colorScheme = Theme.of(context).colorScheme;
   
     return GestureDetector(
-      onTap: () {
-        _showTimezones(context);
-      },
-      child: 
-      
-      AnalogClock(
+      onTap: () {_showTimezones(context);},
+      child: AnalogClock(
         dateTime: tz.TZDateTime.now(partnerTz),
         markingWidthFactor: 0, 
         hourNumberRadiusFactor: 0.9,

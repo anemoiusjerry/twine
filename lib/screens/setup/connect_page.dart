@@ -1,13 +1,16 @@
 import 'package:cloud_functions/cloud_functions.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:firebase_auth/firebase_auth.dart';
-import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:twine/repositories/user_interface.dart';
 
 class ConnectPage extends StatefulWidget {
-  const ConnectPage({super.key, required this.setPartnerConnectCode, required this.onSubmit});
+  const ConnectPage({
+    super.key,
+    required this.connectCode,
+    required this.setPartnerConnectCode, 
+    required this.onSubmit
+  });
   
+  final String? connectCode;
   final Function(String) setPartnerConnectCode;
   final VoidCallback onSubmit;
   @override
@@ -15,24 +18,9 @@ class ConnectPage extends StatefulWidget {
 }
 
 class _ConnectPageState extends State<ConnectPage> {
-  final userRepo = UserRepository(FirebaseFirestore.instance);
-  String? connectCode;
+  final GlobalKey<TooltipState> tooltipkey = GlobalKey<TooltipState>();
   String partnerConnectCode = "";
-  bool _fetchingCode = true;
   bool _submitting = false;
-
-  @override
-  initState() {
-    super.initState();
-    // fetch twine User and get the generated connect code
-    final userTable = UserRepository(FirebaseFirestore.instance);
-    userTable.get(FirebaseAuth.instance.currentUser?.uid ?? "").then((user) => {
-      setState(() {
-        connectCode = user?.connectCode;
-        _fetchingCode = false;
-      })
-    });
-  }
 
   // Do not allow further setup if no user is linked to the connect code
   void _linkPartner(BuildContext context) async {
@@ -67,7 +55,6 @@ class _ConnectPageState extends State<ConnectPage> {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context).colorScheme;
-    final GlobalKey<TooltipState> tooltipkey = GlobalKey<TooltipState>();
 
     return Container(
       color: theme.primary,
@@ -84,16 +71,15 @@ class _ConnectPageState extends State<ConnectPage> {
               message: "Invitation code copied!",
               child: OutlinedButton(
                 onPressed: () async {
-                  await Clipboard.setData(ClipboardData(text: connectCode ?? ""));
+                  await Clipboard.setData(ClipboardData(text: widget.connectCode ?? ""));
                   tooltipkey.currentState?.ensureTooltipVisible();
                 },
                 style: OutlinedButton.styleFrom(
                   side: const BorderSide(color: Colors.white,),
                   shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(5))
                 ), 
-                child: _fetchingCode ? const CircularProgressIndicator(color: Colors.white,) : 
-                Text(
-                  connectCode ?? "NO CODE",
+                child: Text(
+                  widget.connectCode ?? "NO CODE",
                   style: const TextStyle(color: Colors.white, fontSize: 20),
                 ),
               ),

@@ -1,4 +1,6 @@
 // Sign up page
+import 'dart:async';
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter_pw_validator/flutter_pw_validator.dart';
@@ -26,6 +28,7 @@ class _SignUpPageState extends State<SignUpPage> {
   bool pwdValid = false;
   bool isSubmitting = false;
   bool createSuccess = false;
+  StreamSubscription<DocumentSnapshot>? _subscription;
 
   final _formKey = GlobalKey<FormState>();
   final _passwordController = TextEditingController();
@@ -43,6 +46,7 @@ class _SignUpPageState extends State<SignUpPage> {
     // clean up controller when widget is removed from tree
     _emailController.dispose();
     _passwordController.dispose();
+    _subscription?.cancel();
     super.dispose();
   }
 
@@ -57,54 +61,30 @@ class _SignUpPageState extends State<SignUpPage> {
     });
   }
 
-  _createAccount () async {
-    // try logging in if email is valid, passwords match
+  Future<void> _createAccount(BuildContext context) async {
     if (_formKey.currentState!.validate() && pwdValid) {
       try {
-        _formKey.currentState!.save();
-        setState(() {
-          isSubmitting = true;
-        });
+        // user create request
+        UserCredential cred = await FirebaseAuth.instance
+          .createUserWithEmailAndPassword(email: email.trim(), password: password.trim()); 
+        String userId = cred.user?.uid ?? "";
 
-        await FirebaseAuth.instance.createUserWithEmailAndPassword(
-          email: email.trim(),
-          password: password.trim(),
-        );
-
-        setState(() {
-          createSuccess = true;
-          // clear data
-          email = "";
-          password = "";
-        });
-
-        // delay time to show success screen
-        Future.delayed(const Duration(seconds: 2), () {
-          setState(() {
-            createSuccess = false;
-            isSubmitting = false;
+        // set up listener
+        _subscription = FirebaseFirestore.instance
+          .collection("users")
+          .doc(userId)
+          .snapshots()
+          .listen((DocumentSnapshot snap) {
+            if (snap.exists) {
+              // cancel listener
+              _subscription?.cancel();
+            }
           });
-          widget.onBackPress();
-        });
-      } on FirebaseAuthException catch (e) {
-        setState(() {
-          isSubmitting = false;
-        });
-        // weak password == password requirements not met
-        if (e.code == 'weak-password') {
-          widget.showSnackBar(context, "The password provided is too weak.");
-        } else if (e.code == 'email-already-in-use') {
-          widget.showSnackBar(context, "An account already exists for that email.");
-        } else {
-          widget.showSnackBar(context, e.message ?? "Unknown error has ocurred.");
-        }
-      } catch (e) {
-        setState(() {
-          isSubmitting = false;
-        });
-
+      } catch(e) {
         print(e);
-        widget.showSnackBar(context, "An error has occurred, please try again later.");
+        if (context.mounted) {
+          widget.showSnackBar(context, "An error has occurred, please try again later.");
+        }
       }
     }
   }
@@ -204,7 +184,7 @@ class _SignUpPageState extends State<SignUpPage> {
 
                 OutlinedButton(
                   style: OutlinedButton.styleFrom(side: const BorderSide(color: Colors.white, width: 2)),
-                  onPressed: _createAccount, 
+                  onPressed: () => _createAccount(context), 
                   child: const Text("Sign Up", style: TextStyle(color: Colors.white, fontSize: 20),)
                 ),
               ],

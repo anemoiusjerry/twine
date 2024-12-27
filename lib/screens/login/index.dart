@@ -45,14 +45,14 @@ class _LoginNavigatorState extends State<LoginNavigator> {
 
   @override
   Widget build(BuildContext context) {
-    //final theme = Theme.of(context).colorScheme;
+    final theme = Theme.of(context).colorScheme;
 
     return StreamBuilder(
       stream: FirebaseAuth.instance.authStateChanges(),
       builder: (context, snapshot) {
         if (snapshot.connectionState == ConnectionState.active) {
           User? user = snapshot.data;
-          // handles transition to mainstack and back
+          // Main stack vs login stack transition
           if (user != null) {
             return const HomeNavigator();
           }
@@ -77,7 +77,12 @@ class _LoginNavigatorState extends State<LoginNavigator> {
             );
           }
         }
-        return const Scaffold(body: Center(child: CircularProgressIndicator()));
+        return Container(
+          color: theme.primary, 
+          child: const Center(
+            child: CircularProgressIndicator(color: Colors.white,)
+          )
+        );
       }
     );
   }

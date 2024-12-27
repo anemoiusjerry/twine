@@ -4,8 +4,9 @@ import 'package:twine/screens/setup/connect_page.dart';
 import 'package:twine/screens/setup/setup_page.dart';
 
 class SetupNavigator extends StatefulWidget {
-  const SetupNavigator({super.key});
+  const SetupNavigator({super.key, this.connectCode});
 
+  final String? connectCode;
   @override
   State<SetupNavigator> createState() => _SetupNavigatorState();
 }
@@ -49,6 +50,7 @@ class _SetupNavigatorState extends State<SetupNavigator> {
         physics: const NeverScrollableScrollPhysics(),
         children: <Widget> [
           ConnectPage(
+            connectCode: widget.connectCode,
             setPartnerConnectCode: setPartnerConnectCode,
             onSubmit: () => navToPage(1)
           ),
