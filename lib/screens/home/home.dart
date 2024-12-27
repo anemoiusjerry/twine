@@ -1,7 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:twine/widgets/countdown_donut.dart';
-import 'package:flutter_analog_clock/flutter_analog_clock.dart';
-import 'package:twine/widgets/love_counter.dart';
 import 'package:twine/widgets/timezone_clock.dart';
 
 class HomeScreen extends StatelessWidget {

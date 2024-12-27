@@ -26,5 +26,7 @@
 	<true></true>
 	<key>GOOGLE_APP_ID</key>
 	<string>1:227267590488:ios:ea91a78324bdc58d2dcd2d</string>
+	<key>DATABASE_URL</key>
+	<string>https://twine-dev-27f81-default-rtdb.asia-southeast1.firebasedatabase.app</string>
 </dict>
 </plist>

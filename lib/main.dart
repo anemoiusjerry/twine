@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:twine/firebase_options.dart';
-import 'package:twine/screens/login_navigator.dart';
+import 'package:twine/screens/login/index.dart';
 import 'package:twine/styles/colours.dart';
 
 
@@ -36,6 +36,31 @@ class TwineApp extends StatelessWidget {
         floatingActionButtonTheme: const FloatingActionButtonThemeData(
           shape: CircleBorder(),
           backgroundColor: AppColours.secondary, 
+        ),
+        inputDecorationTheme: InputDecorationTheme(
+          filled: true,
+          fillColor: Colors.white,
+          border: OutlineInputBorder(
+            borderRadius: BorderRadius.circular(30),
+          ),
+          focusedBorder: OutlineInputBorder(
+            borderRadius: BorderRadius.circular(30),
+            borderSide: const BorderSide(width: 0)
+          ),
+          enabledBorder: OutlineInputBorder(
+            borderRadius: BorderRadius.circular(30),
+            borderSide: const BorderSide(width: 0)
+          ),
+          errorStyle: const TextStyle(
+            color: Colors.white,
+            fontSize: 15
+          ),
+          hintStyle: const TextStyle(color: AppColours.gray)
+        ),
+        outlinedButtonTheme: OutlinedButtonThemeData(
+          style: OutlinedButton.styleFrom(
+            side: const BorderSide(color: Colors.white, width: 2)
+          )
         ),
         useMaterial3: true,
       ),

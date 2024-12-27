@@ -1,16 +1,18 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
-import 'package:twine/screens/home_navigator.dart';
+import 'package:twine/models/user_model.dart' show TwineUser;
+import 'package:twine/repositories/user_interface.dart';
 
 class LoginPage extends StatefulWidget {
   const LoginPage({
     super.key, 
-    required this.onSignUpPress,
+    required this.flipPage,
     required this.checkValidEmail,
     required this.showSnackBar,
   });
 
-  final VoidCallback onSignUpPress;
+  final void Function(int) flipPage;
   final bool Function(String?) checkValidEmail;
   final void Function(BuildContext, String) showSnackBar;
 
@@ -22,24 +24,28 @@ class _LoginPageState extends State<LoginPage> {
   String email = "";
   String password = "";
   final _formKey = GlobalKey<FormState>();
-  
-  void checkLoginStatus() {
-    
-  }
 
   _handleLogin() async {
     try {
       if (_formKey.currentState!.validate()) {
-        final credential = await FirebaseAuth.instance.signInWithEmailAndPassword(
+        await FirebaseAuth.instance.signInWithEmailAndPassword(
           email: email.trim(),
           password: password.trim(),
         );
-        // login success go to home page
-        Navigator.of(context, rootNavigator: true).push(
-          MaterialPageRoute(
-            builder: (_) => const HomeNavigator()
-          ),
-        );
+        
+        // check if user needs to setup a couple
+        var userRepo = UserRepository(FirebaseFirestore.instance);
+        TwineUser? user = await userRepo.get(FirebaseAuth.instance.currentUser?.uid ?? "");
+
+        if (user != null) {
+          userRepo.update(email, {'lastActivity': Timestamp.now()});
+          if (user.coupleId == null) {
+            widget.flipPage(2);
+          }
+        } else {
+        // Prompt user to sign up, but this should be caught in catch section
+          widget.flipPage(1);
+        }
       }
     } on FirebaseAuthException catch (e) {
       // ONLY will receive 'INVALID_LOGIN_CREDENTIALS' due to email enumeration
@@ -61,7 +67,7 @@ class _LoginPageState extends State<LoginPage> {
   Widget build(BuildContext context) {
     final theme = Theme.of(context).colorScheme;
 
-    return Center(
+    return Container(color: theme.primary, child: Center(
       child: Padding(
         padding: const EdgeInsets.all(40), 
         child: Form(
@@ -71,12 +77,7 @@ class _LoginPageState extends State<LoginPage> {
             children: [
               TextFormField(
                 decoration: InputDecoration(
-                  filled: true,
-                  fillColor: Colors.white,
-                  border: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(30),
-                  ),
-                  prefixIcon: Icon(Icons.person, color: theme.primary,),
+                  prefixIcon: Icon(Icons.person, color: theme.secondary,),
                   hintText: "Email Address",
                 ),
                 onChanged: (text) {
@@ -86,39 +87,36 @@ class _LoginPageState extends State<LoginPage> {
                   return widget.checkValidEmail(text) ? null : 'Invalid Email';
                 },
               ),
-              const SizedBox(height: 10,),
-              TextField(
-                obscureText: true,
+              const SizedBox(height: 20,),
+              TextFormField(
                 decoration: InputDecoration(
-                  border: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(30),
-                  ),
-                  prefixIcon: const Icon(Icons.lock),
+                  prefixIcon: Icon(Icons.lock, color: theme.secondary,),
                   hintText: "Password",
                 ),
+                obscureText: true,
                 onChanged: (text) {
                   setState(() {password = text;});
                 },
               ),
-              const SizedBox(height: 10,),
+              const SizedBox(height: 30,),
               Row(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
                   OutlinedButton(
                     onPressed: _handleLogin, 
-                    child: const Text("Log In")
+                    child: const Text("Log In", style: TextStyle(color: Colors.white, fontSize: 20),)
                   ),
                   const SizedBox(width: 10,),
                   OutlinedButton(
-                    onPressed: widget.onSignUpPress, 
-                    child: const Text("Sign Up")
+                    onPressed: () => widget.flipPage(1), 
+                    child: const Text("Sign Up", style: TextStyle(color: Colors.white, fontSize: 20),)
                   ),
                 ],
-              ),
+              )
             ],
           ),
         ),
       ),
-    );
+    ));
   }
 }

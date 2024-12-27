@@ -17,6 +17,7 @@ class _TimezoneClockState extends State<TimezoneClock> {
   @override
   void initState() {
     super.initState();
+    tz.initializeTimeZones();
     // tz.local here is UTC
     partnerTz = widget.tzString != null ? tz.getLocation(widget.tzString!) : tz.local;
   }

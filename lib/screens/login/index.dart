@@ -1,11 +1,26 @@
-import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
-import 'package:twine/screens/home_navigator.dart';
+import 'package:firebase_auth/firebase_auth.dart';
+import 'package:twine/screens/home/index.dart';
 import 'package:twine/screens/login/login_page.dart';
 import 'package:twine/screens/login/sign_up_page.dart';
 
-class LoginNavigator extends StatelessWidget {
+class LoginNavigator extends StatefulWidget {
   const LoginNavigator({super.key});
+
+  @override
+  State<LoginNavigator> createState() => _LoginNavigatorState();
+}
+
+class _LoginNavigatorState extends State<LoginNavigator> {
+  final pageController = PageController();
+
+  void navToPage(int index) {
+    pageController.animateToPage(
+      index, 
+      duration: const Duration(milliseconds: 300), 
+      curve: Curves.easeInOut
+    );
+  }
 
   bool _checkValidEmail(String? emailAddress) {
     const pattern = r"(?:[a-z0-9!#$%&'*+/=?^_`{|}~-]+(?:\.[a-z0-9!#$%&'"
@@ -16,7 +31,6 @@ class LoginNavigator extends StatelessWidget {
     r'[0-9]|[1-9]?[0-9])|[a-z0-9-]*[a-z0-9]:(?:[\x01-\x08\x0b\x0c\x0e-\x1f\'
     r'x21-\x5a\x53-\x7f]|\\[\x01-\x09\x0b\x0c\x0e-\x7f])+)\])';
     final regex = RegExp(pattern);
-    //print(regex.hasMatch(emailAddress!));
     return emailAddress!.isNotEmpty && regex.hasMatch(emailAddress);
   }
 
@@ -29,39 +43,27 @@ class LoginNavigator extends StatelessWidget {
     );
   }
 
-  // check user session
-
-
   @override
   Widget build(BuildContext context) {
-    final theme = Theme.of(context).colorScheme;
-    final pageController = PageController();
-
-    void navToPage(int index) {
-      pageController.animateToPage(
-        index, 
-        duration: const Duration(milliseconds: 300), 
-        curve: Curves.easeInOut
-      );
-    }
+    //final theme = Theme.of(context).colorScheme;
 
     return StreamBuilder(
       stream: FirebaseAuth.instance.authStateChanges(),
       builder: (context, snapshot) {
         if (snapshot.connectionState == ConnectionState.active) {
           User? user = snapshot.data;
+          // handles transition to mainstack and back
           if (user != null) {
             return const HomeNavigator();
           }
           else {
             return Scaffold(
-              backgroundColor: theme.primary,
               body: PageView(
                 controller: pageController,
                 physics: const NeverScrollableScrollPhysics(),
                 children: [
                   LoginPage(
-                    onSignUpPress: () => navToPage(1), 
+                    flipPage: navToPage, 
                     checkValidEmail: _checkValidEmail,
                     showSnackBar: _showErrorSnackBar,
                   ),
@@ -69,7 +71,7 @@ class LoginNavigator extends StatelessWidget {
                     onBackPress: () => navToPage(0), 
                     checkValidEmail:  _checkValidEmail,
                     showSnackBar: _showErrorSnackBar,
-                  )
+                  ),
                 ],
               ),
             );

@@ -66,7 +66,7 @@ class _SignUpPageState extends State<SignUpPage> {
           isSubmitting = true;
         });
 
-        final credential = await FirebaseAuth.instance.createUserWithEmailAndPassword(
+        await FirebaseAuth.instance.createUserWithEmailAndPassword(
           email: email.trim(),
           password: password.trim(),
         );
@@ -111,6 +111,8 @@ class _SignUpPageState extends State<SignUpPage> {
 
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context).colorScheme;
+
     return Scaffold(
       // Back nav button on top bar
       appBar: isSubmitting ? null : AppBar(
@@ -118,9 +120,11 @@ class _SignUpPageState extends State<SignUpPage> {
         leading: IconButton(
           icon: const Icon(Icons.arrow_back_ios),
           onPressed: widget.onBackPress,
+          color: Colors.white,
         ),
+        backgroundColor: theme.primary,
       ),
-
+      backgroundColor: theme.primary,
       // page content
       body: Form(
         key: _formKey,
@@ -132,9 +136,9 @@ class _SignUpPageState extends State<SignUpPage> {
               child: Column(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [ 
-                  createSuccess ? const Icon(Icons.check_circle, size: 60, color: Colors.green,) : const CircularProgressIndicator(),
+                  createSuccess ? const Icon(Icons.check_circle, size: 60, color: Colors.green,) : const CircularProgressIndicator(color: Colors.white,),
                   const SizedBox(height: 20,),
-                  Text(createSuccess ? "Account created!" : "Creating your account...", style: const TextStyle(fontSize: 18),),
+                  Text(createSuccess ? "Account created!" : "Creating your account...", style: const TextStyle(fontSize: 18, color: Colors.white),),
                 ],
               ),
             ) :
@@ -144,11 +148,8 @@ class _SignUpPageState extends State<SignUpPage> {
               children: [
                 TextFormField(
                   controller: _emailController,
-                  decoration: InputDecoration(
-                    border: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(30),
-                    ),
-                    prefixIcon: const Icon(Icons.person),
+                  decoration: const InputDecoration(
+                    prefixIcon: Icon(Icons.person),
                     hintText: "Email Address",
                   ),
                   validator: (text) {
@@ -160,11 +161,8 @@ class _SignUpPageState extends State<SignUpPage> {
                 TextFormField(
                   controller: _passwordController,
                   obscureText: true,
-                  decoration: InputDecoration(
-                    border: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(30),
-                    ),
-                    prefixIcon: const Icon(Icons.lock_open),
+                  decoration: const InputDecoration(
+                    prefixIcon: Icon(Icons.lock_open),
                     hintText: "Password",
                   ),
                   validator: (text) {
@@ -176,11 +174,8 @@ class _SignUpPageState extends State<SignUpPage> {
                 TextFormField(
                   obscureText: true,
                   autocorrect: false,
-                  decoration: InputDecoration(
-                    border: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(30),
-                    ),
-                    prefixIcon: const Icon(Icons.lock),
+                  decoration: const InputDecoration(
+                    prefixIcon: Icon(Icons.lock),
                     hintText: "Confirm Password",
                   ),
                   validator: (text) {
@@ -208,8 +203,9 @@ class _SignUpPageState extends State<SignUpPage> {
                 const SizedBox(height: 10,),
 
                 OutlinedButton(
+                  style: OutlinedButton.styleFrom(side: const BorderSide(color: Colors.white, width: 2)),
                   onPressed: _createAccount, 
-                  child: const Text("Sign Up")
+                  child: const Text("Sign Up", style: TextStyle(color: Colors.white, fontSize: 20),)
                 ),
               ],
             ),

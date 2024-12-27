@@ -29,7 +29,11 @@
 	<key>UIMainStoryboardFile</key>
 	<string>Main</string>
 	<key>NSMicrophoneUsageDescription</key>
-	<string>Please allow microphone permissions.</string>
+	<string>Twine needs access to microphone for voice record feature.</string>
+	<key>NSPhotoLibraryUsageDescription</key>
+	<string>Twine requests access to your photo gallery.</string>
+	<key>NSCameraUsageDescription</key>
+	<string>Twine needs camera access.</string>
 	<key>UISupportedInterfaceOrientations</key>
 	<array>
 		<string>UIInterfaceOrientationPortrait</string>
