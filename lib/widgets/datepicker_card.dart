@@ -1,10 +1,15 @@
 import 'package:flutter/material.dart';
 
 class DatepickerCard extends StatelessWidget {
-  DatepickerCard({super.key, required this.handleDateSelect}):
-  firstDate = DateTime(DateTime.now().year - 5),
-  lastDate = DateTime(DateTime.now().year + 5);
+  const DatepickerCard({
+    super.key, 
+    required this.initialDate, 
+    required this.handleDateSelect,
+    required this.firstDate,
+    required this.lastDate,
+  });
 
+  final DateTime initialDate;
   final DateTime firstDate;
   final DateTime lastDate;
   final Function(DateTime) handleDateSelect;
@@ -14,12 +19,15 @@ class DatepickerCard extends StatelessWidget {
     return Padding(
       padding: const EdgeInsets.all(10),
       child: CalendarDatePicker(
-        initialDate: DateTime.now(),
+        initialDate: initialDate,
         firstDate: firstDate, 
         lastDate: lastDate,
         onDateChanged: (DateTime date) {
+          // only allow date select if day is changed
+          if (date.day != initialDate.day) {
           handleDateSelect(date);
           Navigator.of(context).pop();
+          }
         },
       )
     );

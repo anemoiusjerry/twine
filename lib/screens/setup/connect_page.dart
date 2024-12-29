@@ -6,11 +6,13 @@ class ConnectPage extends StatefulWidget {
   const ConnectPage({
     super.key,
     required this.connectCode,
+    required this.partnerConnectCode,
     required this.setPartnerConnectCode, 
     required this.onSubmit
   });
   
   final String? connectCode;
+  final String? partnerConnectCode;
   final Function(String) setPartnerConnectCode;
   final VoidCallback onSubmit;
   @override
@@ -19,24 +21,21 @@ class ConnectPage extends StatefulWidget {
 
 class _ConnectPageState extends State<ConnectPage> {
   final GlobalKey<TooltipState> tooltipkey = GlobalKey<TooltipState>();
-  String partnerConnectCode = "";
   bool _submitting = false;
 
   // Do not allow further setup if no user is linked to the connect code
-  void _linkPartner(BuildContext context) async {
+  void _findPartner(BuildContext context) async {
     setState(() {
       _submitting = true;
     });
-    var result = await FirebaseFunctions.instance.httpsCallable("userExists").call(
-      {
-        "connectCode": partnerConnectCode
-      }
-    );
+    var result = await FirebaseFunctions.instance.httpsCallable("userExists").call({
+      "connectCode": widget.partnerConnectCode
+    });
     bool userExists = result.data;
-
     setState(() {
       _submitting = false;
     });
+
     if (userExists) {
       // go to be setup
       widget.onSubmit();
@@ -91,6 +90,7 @@ class _ConnectPageState extends State<ConnectPage> {
             ),
             TextField(
               textAlign: TextAlign.center,
+              textCapitalization: TextCapitalization.characters,
               decoration: const InputDecoration(
                 hintText: "Partner's invite code"
               ),
@@ -105,7 +105,7 @@ class _ConnectPageState extends State<ConnectPage> {
               )
             else 
               OutlinedButton(
-                onPressed: () => _linkPartner(context), 
+                onPressed: () => _findPartner(context), 
                 child: const Text("Connect", style: TextStyle(color: Colors.white))
               )
           ],

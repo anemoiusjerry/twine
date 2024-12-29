@@ -26,9 +26,9 @@ class _HomeNavigatorState extends State<HomeNavigator> {
     super.initState();
     // update last activity
     final userRepo = UserRepository(FirebaseFirestore.instance);
-    userRepo.update(FirebaseAuth.instance.currentUser?.uid ?? "", {
-      "lastActivity": Timestamp.now()
-    });
+    // userRepo.update(FirebaseAuth.instance.currentUser?.uid ?? "", {
+    //   "lastActivity": Timestamp.now()
+    // });
   }
 
   void _updateScreenIndex(int newIndex) {

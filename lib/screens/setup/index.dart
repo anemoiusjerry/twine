@@ -51,6 +51,7 @@ class _SetupNavigatorState extends State<SetupNavigator> {
         children: <Widget> [
           ConnectPage(
             connectCode: widget.connectCode,
+            partnerConnectCode: partnerConnectCode,
             setPartnerConnectCode: setPartnerConnectCode,
             onSubmit: () => navToPage(1)
           ),

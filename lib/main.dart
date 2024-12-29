@@ -1,3 +1,4 @@
+import 'package:cloud_functions/cloud_functions.dart';
 import 'package:flutter/material.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:twine/firebase_options.dart';
@@ -10,6 +11,8 @@ void main() async {
   await Firebase.initializeApp(
     options: DefaultFirebaseOptions.currentPlatform, 
   );
+  // Use local emulator for firebase
+  FirebaseFunctions.instance.useFunctionsEmulator('localhost', 5001);
   runApp(const TwineApp());
 }
 

@@ -1,8 +1,5 @@
-import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
-import 'package:twine/models/user_model.dart' show TwineUser;
-import 'package:twine/repositories/user_interface.dart';
 
 class LoginPage extends StatefulWidget {
   const LoginPage({
