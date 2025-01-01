@@ -1,91 +1,50 @@
-import 'dart:convert';
-import 'dart:io';
-import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:cloud_functions/cloud_functions.dart';
 import 'package:flutter/material.dart';
-import 'package:image_picker/image_picker.dart';
-import 'package:intl/intl.dart';
 import 'package:twine/helper.dart';
-import 'package:twine/widgets/circular_picture.dart';
-import 'package:mime/mime.dart';
+import 'package:twine/widgets/profile_picture.dart';
 
 class SetupPage extends StatefulWidget {
-  const SetupPage({super.key, required this.connectCode});
+  const SetupPage({super.key, required this.reload, required this.storagePath});
 
-  // partner connect code
-  final String connectCode;
+  final VoidCallback reload;
+  final String storagePath;
   @override
   State<SetupPage> createState() => _SetupPageState();
 }
 
 class _SetupPageState extends State<SetupPage> {
-  final _picker = ImagePicker();
-  final _anniversaryController = TextEditingController();
-  final _reunionController = TextEditingController();
-  
-  File? image;
+  final TextEditingController _timezoneController = TextEditingController();
   String nickName = "";
-  DateTime anniversaryDate = DateTime.now();
-  bool longDistance = false;
-  DateTime reunionDate = DateTime.now();
+  String timezone = "";
   bool _submitting = false;
 
   @override
-  initState() {
-    super.initState();
-    _anniversaryController.text = DateFormat('d MMM yyyy').format(anniversaryDate);
-    _reunionController.text = DateFormat('d MMM yyyy').format(reunionDate);
+  void dispose() {
+    _timezoneController.dispose();
+    super.dispose();
   }
 
-  Future<void> _pickImage(BuildContext context, ImageSource source) async {
-    try {
-      final XFile? pickedFile = await _picker.pickImage(source: source);
-      if (pickedFile != null) {
-        setState(() {
-          image = File(pickedFile.path);
-        });
-      }
-    } catch (e) {
-      print('Error picking image: $e');
-      if (context.mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          generateSnackBar("Error, please select another image."));
-      }
-    }
-  }
-
-  void setAnniversaryDate(DateTime selected) {
+  void _setTimezone(String selectedTimezone) {
     setState(() {
-      anniversaryDate = selected;
+      timezone = selectedTimezone;
     });
-    _anniversaryController.text = DateFormat('d MMM yyyy').format(selected);
-  }
-  void setReunionDate(DateTime selected) {
-    setState(() {
-      reunionDate = selected;
-    });
-    _reunionController.text = DateFormat('d MMM yyyy').format(selected);
+    _timezoneController.text = selectedTimezone;
   }
 
-  void _linkAccount() async {
+  void _linkAccount(BuildContext context) async {
     setState(() {
       _submitting = true;
     });
-    // read file as base64 string
-    String dataString = image != null ? base64Encode(image!.readAsBytesSync()) : "";
     try {
       // call API to set up partner settings
-      await FirebaseFunctions.instance.httpsCallable("setupAccount").call({
-        "connectCode": widget.connectCode,
-        "anniversaryDate": anniversaryDate.toIso8601String(),
-        "reunionDate": reunionDate.toIso8601String(),
-        "imageData": dataString,
-        "mimeType": lookupMimeType(image?.path ?? ""),
+      await FirebaseFunctions.instance.httpsCallable("createPartnerSetting").call({
         "nickName": nickName,
+        "timezone": timezone,
       });
       setState(() {
         _submitting = false;
       });
+      widget.reload();
     } catch(e) {
       print(e);
       if (context.mounted) {
@@ -108,18 +67,13 @@ class _SetupPageState extends State<SetupPage> {
         padding: const EdgeInsets.all(40),
         child: Column(
           children: <Widget>[
-            CircularContainer(
+            ProfilePicture(
               radius: 200,
-              child: GestureDetector(
-                onTap: () => _pickImage(context, ImageSource.gallery),
-                child: image == null ? 
-                  Icon(Icons.person, size: 150, color: theme.primary,):
-                  Image.file(image!, width: 200, height: 200, fit: BoxFit.cover,)
-              )
+              storagePath: widget.storagePath,
             ),
             const SizedBox(height: 20,),
 
-            TextFormField(
+            TextField(
               onChanged: (text) {
                 setState(() {
                   nickName = text;
@@ -129,75 +83,21 @@ class _SetupPageState extends State<SetupPage> {
               decoration: const InputDecoration(hintText: "Your partner's nickname"),
             ),
             const SizedBox(height: 10,),
-
-            const Text("Anniversary date", style: TextStyle(color: Colors.white),),
             GestureDetector(
-              onTap: () => showDatePickerDialog(
-                context, 
-                anniversaryDate,
-                setAnniversaryDate,
-                firstDate: DateTime(DateTime.now().year - 30),
-                lastDate: DateTime.now()
-              ),
-              // need AbsorbPointer to override text input focus
+              onTap: () => showTimezones(context, _setTimezone),
               child: AbsorbPointer(
                 child: TextField(
-                  controller: _anniversaryController,
-                  readOnly: true,
+                  controller: _timezoneController,
                   textAlign: TextAlign.center,
+                  decoration: const InputDecoration(hintText: "Your partner's timezone"),
                 ),
-              )
+              ),
             ),
-            const SizedBox(height: 10,),
-
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-              children: [
-                const Text("Long distance", style: TextStyle(color: Colors.white),),
-                Container(
-                  decoration: BoxDecoration(borderRadius: BorderRadius.circular(10), color: Colors.white),
-                  child: ToggleButtons(
-                    color: Colors.black,
-                    fillColor: theme.secondary,
-                    selectedColor: Colors.black,
-                    borderRadius: BorderRadius.circular(10),
-                    isSelected: [longDistance, !longDistance],
-                    onPressed: (int index) {
-                      setState(() {
-                        longDistance = index == 0;
-                      });
-                    },
-                    children: const <Widget> [
-                      Text("Yes"),
-                      Text("No")
-                    ]
-                  )
-                )
-              ],
-            ),
-            const SizedBox(height: 10,),
-            Visibility(
-              visible: longDistance,
-              child: GestureDetector(
-                onTap: () => showDatePickerDialog(
-                  context, 
-                  reunionDate, 
-                  setReunionDate,
-                  firstDate: DateTime.now()
-                ),
-                child: AbsorbPointer(
-                  child: TextField(
-                    controller: _reunionController,
-                    readOnly: true,
-                    textAlign: TextAlign.center,
-                  )
-                )
-              )
-            ),
-
+           
+        
             const SizedBox(height: 20,),
             OutlinedButton(
-              onPressed: _linkAccount, 
+              onPressed: () => _linkAccount(context), 
               child: _submitting ? const SizedBox(
                 width: 20,
                 height: 20,

@@ -1,26 +1,23 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 
-class Partner {
-  final String? partnerUserId;
-  final String? imageUrl;
+class PartnerSettings {
+  final String? userId;
   final String? nickName;
   final String? timezone;
 
-  Partner({
-    this.partnerUserId,
-    this.imageUrl,
+  PartnerSettings({
+    this.userId,
     this.nickName,
     this.timezone,
   });
 
-  factory Partner.fromFirestore(
+  factory PartnerSettings.fromFirestore(
     DocumentSnapshot<Map<String, dynamic>> snapshot, 
     SnapshotOptions? options,
   ) {
     final data = snapshot.data();
-    return Partner(
-      partnerUserId: data?['partnerUserId'],
-      imageUrl: data?['imageUrl'],
+    return PartnerSettings(
+      userId: data?['userId'],
       nickName: data?['nickName'],
       timezone: data?['timezone'],
     );
@@ -28,8 +25,7 @@ class Partner {
 
   Map<String, dynamic> toFirestore() {
     return {
-      if (partnerUserId != null) 'partnerUserId': partnerUserId,
-      if (imageUrl != null) 'imageUrl': imageUrl,
+      if (userId != null) 'userId': userId,
       if (nickName != null) 'nickName': nickName,
       if (timezone != null) 'timezone': timezone,
     };

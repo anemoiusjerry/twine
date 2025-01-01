@@ -1,8 +1,8 @@
 import 'dart:io';
-
 import 'package:flutter/material.dart';
 import 'package:firebase_storage/firebase_storage.dart';
 import 'package:twine/widgets/datepicker_card.dart';
+import 'package:timezone/timezone.dart' as tz;
 
 SnackBar generateSnackBar(String text) {
   return SnackBar(content: Text(text), duration: const Duration(seconds: 3),);
@@ -31,6 +31,34 @@ void showDatePickerDialog(
             handleDateSelect: setSelectedDate
           ),
         )
+      );
+    }
+  );
+}
+
+void showTimezones(BuildContext context, void Function(String) onSelect) {
+  final timezones = tz.timeZoneDatabase.locations;
+  showDialog(
+    context: context, 
+    builder: (BuildContext context) {
+      return AlertDialog(
+        title: const Text("Select your partner's timezone"),
+        content: SizedBox(
+          height: 300,
+          width: 300,
+          child: ListView.builder(
+          shrinkWrap: true,
+          itemCount: timezones.length,
+          itemBuilder: (_, int index) {
+            return ListTile(
+              title: Text(timezones.keys.elementAt(index)),
+              onTap: () {
+                onSelect(timezones.keys.elementAt(index));
+                Navigator.pop(context);
+              },
+            );
+          },
+        )),
       );
     }
   );

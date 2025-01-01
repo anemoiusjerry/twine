@@ -1,7 +1,10 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
-import 'package:twine/models/user_model.dart';
+import 'package:twine/models/home_data_model.dart';
+import 'package:twine/repositories/couple_interface.dart';
+import 'package:twine/repositories/partner_setting_interface.dart';
 import 'package:twine/repositories/user_interface.dart';
 import 'package:twine/screens/audio_log.dart';
 import 'package:twine/screens/home/home.dart';
@@ -15,20 +18,51 @@ class HomeNavigator extends StatefulWidget {
 
 class _HomeNavigatorState extends State<HomeNavigator> {
   int screenIndex = 1;
+  late Future<HomeDataModel?> homeData;
 
-  // Listen to logged user entry in Firestore including creation
-  final Stream<DocumentSnapshot<Map<String, dynamic>>> _userStream = 
-  FirebaseFirestore.instance.collection("users")
-    .doc(FirebaseAuth.instance.currentUser!.uid).snapshots();
 
   @override
   void initState() {
     super.initState();
+    homeData = getUserData();
+
     // update last activity
-    final userRepo = UserRepository(FirebaseFirestore.instance);
+    // final userRepo = UserRepository(FirebaseFirestore.instance);
     // userRepo.update(FirebaseAuth.instance.currentUser?.uid ?? "", {
     //   "lastActivity": Timestamp.now()
     // });
+  }
+
+  // query partnerSetting, which also indicate setup status
+  Future<HomeDataModel?> getUserData() async {
+    try {
+      final userId = FirebaseAuth.instance.currentUser?.uid ?? "";
+      final userRepo = UserRepository(FirebaseFirestore.instance);
+      final coupleRepo = CoupleRepository(FirebaseFirestore.instance);
+      final partnerRepo = PartnerSettingRepository(FirebaseFirestore.instance);
+
+      final user = await userRepo.get(userId);
+      final partnerSettings = await partnerRepo.get(userId);
+      if (partnerSettings == null) {
+        return null;
+      }
+      final storagePath = "${user?.coupleId}/$userId/profile.jpeg";
+      final imageUrl = await FirebaseStorage.instance.ref(storagePath).getDownloadURL();
+      // get couple info
+      final coupleEntry = await coupleRepo.get(user?.coupleId ?? "");
+      // generate image download link
+      return HomeDataModel(coupleEntry, partnerSettings, imageUrl, storagePath);
+    } catch(e) {
+      print(e);
+    }
+  return null;
+  }
+
+
+  void reloadPartnerSettings() {
+    setState(() {
+      homeData = getUserData();
+    });
   }
 
   void _updateScreenIndex(int newIndex) {
@@ -40,81 +74,78 @@ class _HomeNavigatorState extends State<HomeNavigator> {
   Widget build(BuildContext context) {
     final ThemeData theme = Theme.of(context);
 
-    return StreamBuilder(
-      stream: _userStream, 
-      builder: (context, snapshot) {
-        if (snapshot.connectionState == ConnectionState.active && snapshot.hasData) {
-          // monitor the coupleId field
-          TwineUser user = TwineUser.fromFirestore(snapshot.data!, null);
-          if (user.coupleId == null) {
-            return SetupNavigator(connectCode: user.connectCode);
-          } else {
-            return Scaffold(
-              appBar: AppBar(
-                actions: [
-                  IconButton(
-                    iconSize: 45,
-                    onPressed: () async {
-                      await FirebaseAuth.instance.signOut();
-                    }, 
-                    icon: const Icon(Icons.person_outline_rounded)
-                  ),
-                ],
-              ),
-              bottomNavigationBar: BottomNavigationBar(
-                currentIndex: screenIndex,
-                onTap: _updateScreenIndex,
-                showSelectedLabels: false,
-                showUnselectedLabels: false,
-                iconSize: 45,
-                items: const <BottomNavigationBarItem>[
-                  BottomNavigationBarItem(
-                    icon: Icon(Icons.photo_library), 
-                    label: "Cards",
-                  ),          
-                  BottomNavigationBarItem(
-                    icon: Icon(Icons.home_rounded), 
-                    label: 'Home',
-                  ),
-                  BottomNavigationBarItem(
-                    icon: Icon(Icons.album_outlined), 
-                    label: 'Memos',
-                  ),
-                ]
-              ),
+    return SafeArea(
+      child: FutureBuilder(
+        future: homeData, 
+        builder: (ctx, snapshot) {
+          // check if async task has resolved
+          if (snapshot.connectionState == ConnectionState.done) {
+            if (snapshot.hasData) {
+              return Scaffold(
+                appBar: AppBar(
+                  actions: [
+                    IconButton(
+                      iconSize: 45,
+                      onPressed: () async {
+                        await FirebaseAuth.instance.signOut();
+                      }, 
+                      icon: const Icon(Icons.person_outline_rounded)
+                    ),
+                  ],
+                ),
+                bottomNavigationBar: BottomNavigationBar(
+                  currentIndex: screenIndex,
+                  onTap: _updateScreenIndex,
+                  showSelectedLabels: false,
+                  showUnselectedLabels: false,
+                  iconSize: 45,
+                  items: const <BottomNavigationBarItem>[
+                    BottomNavigationBarItem(
+                      icon: Icon(Icons.photo_library), 
+                      label: "Cards",
+                    ),          
+                    BottomNavigationBarItem(
+                      icon: Icon(Icons.home_rounded), 
+                      label: 'Home',
+                    ),
+                    BottomNavigationBarItem(
+                      icon: Icon(Icons.album_outlined), 
+                      label: 'Memos',
+                    ),
+                  ]
+                ),
 
-              // Actual screens for the tabs
-              body: <Widget>[
-                Card(
-                  shadowColor: Colors.transparent,
-                  margin: const EdgeInsets.all(8.0),
-                  child: SizedBox.expand(
-                    child: Center(
-                      child: Text(
-                        'home',
-                        style: theme.textTheme.titleLarge,
+                // Actual screens for the tabs
+                body: <Widget>[
+                  Card(
+                    shadowColor: Colors.transparent,
+                    margin: const EdgeInsets.all(8.0),
+                    child: SizedBox.expand(
+                      child: Center(
+                        child: Text(
+                          'home',
+                          style: theme.textTheme.titleLarge,
+                        ),
                       ),
                     ),
                   ),
-                ),
-                const HomeScreen(),
-                const AudioLogScreen(),
-              ][screenIndex],
-            );
+                  HomeScreen(data: snapshot.data!),
+                  const AudioLogScreen(),
+                ][screenIndex],
+              );
+            } else {
+              return SetupNavigator(reload: reloadPartnerSettings,);
+            }
           }
+          // default return: loader
+          return Container(
+            color: theme.colorScheme.primary,
+            child: const Center(
+              child: CircularProgressIndicator(color: Colors.white,)
+            ),
+          );
         }
-
-        if (snapshot.hasError) {
-          return Center(child: Text('Error: ${snapshot.error}'));
-        }
-
-        return Container(
-          color: theme.colorScheme.primary,
-          child: const Center(
-            child: CircularProgressIndicator(color: Colors.white,)
-          ),
-        );
-      }
+      )
     );
   }
 }

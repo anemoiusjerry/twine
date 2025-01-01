@@ -16,12 +16,17 @@ class CoupleRepository implements ICoupleRepository {
 
   @override
   Future<Couple?> get(String id) async {
-    final ref = couplesTable.doc(id).withConverter(
-      fromFirestore: Couple.fromFirestore, 
-      toFirestore: (Couple couple, _) => couple.toFirestore(),
-    );
-    final snapshot = await ref.get();
-    return snapshot.data();
+    try {
+      final ref = couplesTable.doc(id).withConverter(
+        fromFirestore: Couple.fromFirestore, 
+        toFirestore: (Couple couple, _) => couple.toFirestore(),
+      );
+      final snapshot = await ref.get();
+      return snapshot.data();
+    } catch(e) {
+      print(e);
+      return null;
+    }
   }
 
   @override

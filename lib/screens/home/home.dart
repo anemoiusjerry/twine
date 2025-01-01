@@ -1,54 +1,71 @@
 import 'package:flutter/material.dart';
+import 'package:twine/models/home_data_model.dart';
 import 'package:twine/widgets/countdown_donut.dart';
+import 'package:twine/widgets/profile_picture.dart';
 import 'package:twine/widgets/timezone_clock.dart';
 
-class HomeScreen extends StatelessWidget {
-  const HomeScreen({super.key});
+class HomeScreen extends StatefulWidget {
+  const HomeScreen({super.key, required this.data});
+
+  final HomeDataModel data;
+  @override
+  State<HomeScreen> createState() => _HomeScreenState();
+}
+
+class _HomeScreenState extends State<HomeScreen> {
+  late DateTime anniversaryDate;
+  late DateTime reunionDate;
+  late DateTime separationDate;
+
+  @override
+  void initState() {
+    super.initState();
+    anniversaryDate = widget.data.coupleInfo?.anniversaryDate?.toDate() ?? DateTime.now();
+    reunionDate = widget.data.coupleInfo?.reunionDate?.toDate() ?? DateTime.now();
+    separationDate = widget.data.coupleInfo?.separationDate?.toDate() ?? DateTime.now();
+  }
 
   @override
   Widget build(BuildContext context) {
-    final colorScheme = Theme.of(context).colorScheme;
+    final theme = Theme.of(context);
 
     return SafeArea(
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-          children: <Widget>[
-            Row(
-              mainAxisAlignment: MainAxisAlignment.center,
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: <Widget>[
-                Container(
-                  width: 175,
-                  decoration: BoxDecoration(
-                    shape: BoxShape.circle,
-                    border: Border.all(width: 5, color: colorScheme.primary)
-                  ),
-                  child: ClipOval(
-                    child: Image.network('https://flutter.github.io/assets-for-api-docs/assets/widgets/owl.jpg')
-                  )
-                ),
-                
-                const Flexible(
-                  child: Text('Jovana Jastrebic', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 20))
-                ),
-              ],
-            ),
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceEvenly, 
-              children: [
-                CountdownDonut(
-                  reunionDate: DateTime(2025, 3, 1),
-                  separationDate: DateTime(2024, 11, 17)
-                ),
-                const SizedBox(
-                  width: 140, 
-                  child: TimezoneClock()
-                )
-              ],
-            ),
-            //CountdownDonut(anniversaryDate: DateTime(2023, 11, 4),)
-          ],
-        )
-      );
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+        children: <Widget>[
+          Row(
+            mainAxisAlignment: MainAxisAlignment.center,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: <Widget>[
+              ProfilePicture(
+                radius: 170,
+                borderColour: theme.colorScheme.primary,
+                imageUrl: widget.data.imageUrl,
+                storagePath: widget.data.storagePath,
+              ),
+             
+              Flexible(child: Text(
+                widget.data.partnerSettings?.nickName ?? "Set a nickname!", 
+                style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 20))
+              ),
+            ],
+          ),
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceEvenly, 
+            children: [
+              CountdownDonut(
+                reunionDate: reunionDate,
+                separationDate: separationDate
+              ),
+              SizedBox(
+                width: 140, 
+                child: TimezoneClock(tzString: widget.data.partnerSettings?.timezone,)
+              )
+            ],
+          ),
+          //CountdownDonut(anniversaryDate: DateTime(2023, 11, 4),)
+        ],
+      )
+    );
   }
 }

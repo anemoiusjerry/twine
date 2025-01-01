@@ -39,23 +39,21 @@ class CountdownDonut extends StatefulWidget {
 
 class _CountdownDonutState extends State<CountdownDonut> {
   late List<DonutData> slices;
-  late Duration timeToReunion;
-  late Duration timeApart;
+  late int timeToReunion;
+  late int timeApart;
 
   @override
   void initState() {
     super.initState();
-    setState(() {
-      timeToReunion = widget.reunionDate.difference(widget.separationDate);
-      timeApart = DateTime.now().difference(widget.separationDate);
-      double percentageApart = 100 * timeApart.inDays/timeToReunion.inDays;
-      
-      slices = [
-        // highlight the time edured apart
-        DonutData(widget.highlightColour, percentageApart),
-        DonutData(widget.voidColour, 100-percentageApart)
-      ];
-    });
+    timeToReunion = widget.reunionDate.difference(widget.separationDate).inDays;
+    timeApart = DateTime.now().difference(widget.separationDate).inDays;
+    double percentageApart = 100 * (timeToReunion == 0 ? 1 : timeApart/timeToReunion);
+    
+    slices = [
+      // highlight the time edured apart
+      DonutData(widget.highlightColour, percentageApart),
+      DonutData(widget.voidColour, 100-percentageApart)
+    ];
   }
 
   @override
@@ -75,7 +73,7 @@ class _CountdownDonutState extends State<CountdownDonut> {
         child: SizedBox.square(
           dimension: 2*widget.radius,
           child: Center(
-            child: Text("${timeToReunion.inDays - timeApart.inDays} days left"),
+            child: Text("${timeToReunion - timeApart} days left"),
           )
         )
       ),

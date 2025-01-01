@@ -30,11 +30,11 @@ class CountdownTimer extends StatelessWidget {
   }
 }
 
-void showDateTimePicker(BuildContext context) async {
+void showDateTimePicker(BuildContext context) {
   final currentDate = DateTime.now();
   final int maxYear = currentDate.year + 10;
 
-  DateTime? datePicked = await showDialog<DateTime>(
+  showDialog<DateTime>(
     context: context, 
     builder: (BuildContext context) {
       return Dialog(

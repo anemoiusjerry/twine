@@ -4,10 +4,14 @@ import 'package:firebase_core/firebase_core.dart';
 import 'package:twine/firebase_options.dart';
 import 'package:twine/screens/login/index.dart';
 import 'package:twine/styles/colours.dart';
-
+import 'package:timezone/data/latest.dart' as tz;
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
+  // set local timezone
+  tz.initializeTimeZones();
+  // need to setlocal timezone but currently that is hard and not possible
+
   await Firebase.initializeApp(
     options: DefaultFirebaseOptions.currentPlatform, 
   );
@@ -64,6 +68,9 @@ class TwineApp extends StatelessWidget {
           style: OutlinedButton.styleFrom(
             side: const BorderSide(color: Colors.white, width: 2)
           )
+        ),
+        textTheme: const TextTheme(
+          displayMedium: TextStyle(fontSize: 20, color: Colors.white,),
         ),
         useMaterial3: true,
       ),

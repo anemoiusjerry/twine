@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_analog_clock/flutter_analog_clock.dart';
 import 'package:timezone/timezone.dart' as tz;
-import 'package:timezone/data/latest.dart' as tz;
 
 class TimezoneClock extends StatefulWidget {
   const TimezoneClock({super.key, this.tzString});
@@ -17,9 +16,7 @@ class _TimezoneClockState extends State<TimezoneClock> {
   @override
   void initState() {
     super.initState();
-    tz.initializeTimeZones();
-    // tz.local here is UTC
-    partnerTz = widget.tzString != null ? tz.getLocation(widget.tzString!) : tz.local;
+    partnerTz = tz.getLocation(widget.tzString ?? tz.local.name);
   }
 
   @override
@@ -44,7 +41,6 @@ class _TimezoneClockState extends State<TimezoneClock> {
   }
 
   void _showTimezones(BuildContext context) {
-    tz.initializeTimeZones();
     final timezones = tz.timeZoneDatabase.locations;
     showDialog(
       context: context, 
