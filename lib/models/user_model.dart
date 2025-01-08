@@ -5,6 +5,7 @@ class TwineUser {
   final String? email;
   final String? name;
   final String? connectCode;
+  final Timestamp? birthday;
   final Timestamp? creationDate;
   final Timestamp? lastActivity;
 
@@ -13,6 +14,7 @@ class TwineUser {
     this.email,
     this.name,
     this.connectCode,
+    this.birthday,
     this.creationDate,
     this.lastActivity,
   });
@@ -27,6 +29,7 @@ class TwineUser {
       email: data?['email'],
       name: data?['name'],
       connectCode: data?['connectCode'],
+      birthday: data?['birthday'],
       creationDate: data?['creationDate'],
       lastActivity: data?['lastActivity'],
     );
@@ -38,6 +41,7 @@ class TwineUser {
       if (email != null) 'email': email,
       if (name != null) 'name': name,
       if (connectCode != null) 'connectCode': connectCode,
+      if (birthday != null) 'birthday': birthday,
       if (creationDate != null) 'creationDate': creationDate,
       if (lastActivity != null) 'lastActivity': lastActivity, 
     };

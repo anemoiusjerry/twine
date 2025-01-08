@@ -1,22 +1,14 @@
-// Sign up page
 import 'dart:async';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter_pw_validator/flutter_pw_validator.dart';
+import 'package:twine/helper.dart';
 
 class SignUpPage extends StatefulWidget {
-  const SignUpPage({
-    super.key, 
-    required this.onBackPress, 
-    required this.checkValidEmail,
-    required this.showSnackBar,
-  });
+  const SignUpPage({super.key, required this.onBackPress,});
 
   final VoidCallback onBackPress;
-  final bool Function(String?) checkValidEmail;
-  final void Function(BuildContext, String) showSnackBar;
-
   @override
   State<SignUpPage> createState() => _SignUpPageState();
 }
@@ -83,7 +75,8 @@ class _SignUpPageState extends State<SignUpPage> {
       } catch(e) {
         print(e);
         if (context.mounted) {
-          widget.showSnackBar(context, "An error has occurred, please try again later.");
+          ScaffoldMessenger.of(context)
+          .showSnackBar(generateSnackBar("An error has occurred, please try again later."));
         }
       }
     }
@@ -132,8 +125,11 @@ class _SignUpPageState extends State<SignUpPage> {
                     prefixIcon: Icon(Icons.person),
                     hintText: "Email Address",
                   ),
-                  validator: (text) {
-                    return widget.checkValidEmail(text) ? null : 'Please enter a valid email address';
+                  validator: (value) {
+                    if (value == null || !checkValidEmail(value)) {
+                      return 'Please enter a valid email address';
+                    }
+                    return null;
                   },
                 ),
                 const SizedBox(height: 10,),

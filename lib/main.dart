@@ -38,7 +38,7 @@ class TwineApp extends StatelessWidget {
           error: Colors.red, 
           onError: Colors.white, 
           surface: Colors.white, 
-          onSurface: Colors.black
+          onSurface: Colors.black,
         ),
         floatingActionButtonTheme: const FloatingActionButtonThemeData(
           shape: CircleBorder(),
@@ -70,7 +70,11 @@ class TwineApp extends StatelessWidget {
           )
         ),
         textTheme: const TextTheme(
-          displayMedium: TextStyle(fontSize: 20, color: Colors.white,),
+          bodyMedium: TextStyle(fontSize: 18),
+          displayMedium: TextStyle(fontSize: 18, color: Colors.white,),
+          labelLarge: TextStyle(fontSize: 25, color: AppColours.primary),
+          labelMedium: TextStyle(fontSize: 18, color: AppColours.primary),
+          labelSmall: TextStyle(fontSize: 15, color: AppColours.primary),
         ),
         useMaterial3: true,
       ),

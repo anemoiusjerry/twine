@@ -25,7 +25,7 @@ class _TextDateFieldState extends State<TextDateField> {
   @override
   void initState() {
     super.initState();
-    _controller.text = DateFormat('d MMM yyyy').format(widget.initDate);
+    _controller.text = DateFormat('MMM d yyyy').format(widget.initDate);
   }
 
   @override
@@ -36,7 +36,7 @@ class _TextDateFieldState extends State<TextDateField> {
 
   void _selectDate(DateTime selectedDate) {
     widget.setDate(selectedDate);
-    _controller.text = DateFormat('d MMM yyyy').format(selectedDate);
+    _controller.text = DateFormat('MMM d yyyy').format(selectedDate);
   }
 
   @override

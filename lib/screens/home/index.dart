@@ -7,7 +7,8 @@ import 'package:twine/repositories/couple_interface.dart';
 import 'package:twine/repositories/partner_setting_interface.dart';
 import 'package:twine/repositories/user_interface.dart';
 import 'package:twine/screens/audio_log.dart';
-import 'package:twine/screens/home/home.dart';
+import 'package:twine/screens/home/home_screen.dart';
+import 'package:twine/screens/settings/profile_screen.dart';
 import 'package:twine/screens/setup/index.dart';
 
 class HomeNavigator extends StatefulWidget {
@@ -70,6 +71,10 @@ class _HomeNavigatorState extends State<HomeNavigator> {
     setState(() { screenIndex = newIndex; });
   }
 
+  void _navToSettings(BuildContext context) {
+    Navigator.push(context, MaterialPageRoute(builder: (context) => ProfileScreen()));
+  }
+
   @override
   Widget build(BuildContext context) {
     final ThemeData theme = Theme.of(context);
@@ -86,9 +91,7 @@ class _HomeNavigatorState extends State<HomeNavigator> {
                   actions: [
                     IconButton(
                       iconSize: 45,
-                      onPressed: () async {
-                        await FirebaseAuth.instance.signOut();
-                      }, 
+                      onPressed: () => _navToSettings(context),
                       icon: const Icon(Icons.person_outline_rounded)
                     ),
                   ],

@@ -1,18 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:twine/helper.dart';
 
 class LoginPage extends StatefulWidget {
-  const LoginPage({
-    super.key, 
-    required this.flipPage,
-    required this.checkValidEmail,
-    required this.showSnackBar,
-  });
+  const LoginPage({super.key, required this.flipPage,});
 
   final void Function(int) flipPage;
-  final bool Function(String?) checkValidEmail;
-  final void Function(BuildContext, String) showSnackBar;
-
   @override
   State<LoginPage> createState() => _LoginPageState();
 }
@@ -33,12 +26,14 @@ class _LoginPageState extends State<LoginPage> {
     } on FirebaseAuthException catch (e) {
       // ONLY will receive 'INVALID_LOGIN_CREDENTIALS' due to email enumeration
       if (context.mounted) {
-        widget.showSnackBar(context, e.message ?? "Unknown error has ocurred.");
+        ScaffoldMessenger.of(context)
+        .showSnackBar(generateSnackBar(e.message ?? "Unknown error has ocurred."));
       }
     } catch (e) {
       print(e);
       if (context.mounted) {
-        widget.showSnackBar(context, "An error has occurred, please try again later.");
+        ScaffoldMessenger.of(context)
+        .showSnackBar(generateSnackBar("An error has occurred, please try again later."));
       }
     }
   }
@@ -64,7 +59,10 @@ class _LoginPageState extends State<LoginPage> {
                   setState(() {email = text;});
                 },
                 validator: (text) {
-                  return widget.checkValidEmail(text) ? null : 'Invalid Email';
+                  if (text == null || !checkValidEmail(text)) {
+                    return 'Invalid Email';
+                  }
+                  return null;
                 },
               ),
               const SizedBox(height: 20,),

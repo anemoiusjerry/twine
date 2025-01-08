@@ -46,7 +46,7 @@ class _CountdownDonutState extends State<CountdownDonut> {
   void initState() {
     super.initState();
     timeToReunion = widget.reunionDate.difference(widget.separationDate).inDays;
-    timeApart = DateTime.now().difference(widget.separationDate).inDays;
+    timeApart = min(0, DateTime.now().difference(widget.separationDate).inDays);
     double percentageApart = 100 * (timeToReunion == 0 ? 1 : timeApart/timeToReunion);
     
     slices = [
