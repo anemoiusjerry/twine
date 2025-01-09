@@ -49,8 +49,9 @@ dependencies:
   audio_waveforms: ^1.2.0
   intl: ^0.20.1
   mime: ^2.0.0
-  shared_preferences: ^2.3.4
   flutter_image_compress: ^2.3.0
+  just_audio: ^0.9.42
+  flutter_cache_manager: ^3.4.1
 
 dev_dependencies:
   flutter_test:

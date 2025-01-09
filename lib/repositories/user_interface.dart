@@ -7,10 +7,9 @@ abstract class IUserRepository {
 }
 
 class UserRepository implements IUserRepository {
-  final FirebaseFirestore db;
   late CollectionReference<Map<String, dynamic>> usersTable;
 
-  UserRepository(this.db) {
+  UserRepository(db) {
     usersTable = db.collection('users');
   }
 

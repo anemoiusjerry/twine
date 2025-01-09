@@ -6,7 +6,7 @@ import 'package:twine/models/home_data_model.dart';
 import 'package:twine/repositories/couple_interface.dart';
 import 'package:twine/repositories/partner_setting_interface.dart';
 import 'package:twine/repositories/user_interface.dart';
-import 'package:twine/screens/audio_log.dart';
+import 'package:twine/screens/home/audio_log.dart';
 import 'package:twine/screens/home/home_screen.dart';
 import 'package:twine/screens/settings/profile_screen.dart';
 import 'package:twine/screens/setup/index.dart';
@@ -18,9 +18,8 @@ class HomeNavigator extends StatefulWidget {
 }
 
 class _HomeNavigatorState extends State<HomeNavigator> {
-  int screenIndex = 1;
+  int screenIndex = 2;
   late Future<HomeDataModel?> homeData;
-
 
   @override
   void initState() {
@@ -37,22 +36,22 @@ class _HomeNavigatorState extends State<HomeNavigator> {
   // query partnerSetting, which also indicate setup status
   Future<HomeDataModel?> getUserData() async {
     try {
-      final userId = FirebaseAuth.instance.currentUser?.uid ?? "";
-      final userRepo = UserRepository(FirebaseFirestore.instance);
-      final coupleRepo = CoupleRepository(FirebaseFirestore.instance);
-      final partnerRepo = PartnerSettingRepository(FirebaseFirestore.instance);
+      // final userId = FirebaseAuth.instance.currentUser?.uid ?? "";
+      // final userRepo = UserRepository(FirebaseFirestore.instance);
+      // final coupleRepo = CoupleRepository(FirebaseFirestore.instance);
+      // final partnerRepo = PartnerSettingRepository(FirebaseFirestore.instance);
 
-      final user = await userRepo.get(userId);
-      final partnerSettings = await partnerRepo.get(userId);
-      if (partnerSettings == null) {
-        return null;
-      }
-      final storagePath = "${user?.coupleId}/$userId/profile.jpeg";
-      final imageUrl = await FirebaseStorage.instance.ref(storagePath).getDownloadURL();
-      // get couple info
-      final coupleEntry = await coupleRepo.get(user?.coupleId ?? "");
-      // generate image download link
-      return HomeDataModel(coupleEntry, partnerSettings, imageUrl, storagePath);
+      // final partnerSettings = await partnerRepo.get(userId);
+      // if (partnerSettings == null) {
+      //   return null;
+      // }
+      // final user = await userRepo.get(userId);
+      // final storagePath = "${user?.coupleId}/$userId/profile.jpeg";
+      // final imageUrl = await FirebaseStorage.instance.ref(storagePath).getDownloadURL();
+      // // get couple info
+      // final coupleEntry = await coupleRepo.get(user?.coupleId ?? "");
+      // // generate image download link
+      // return HomeDataModel(coupleEntry, partnerSettings, imageUrl, storagePath, user!.coupleId!);
     } catch(e) {
       print(e);
     }
@@ -72,7 +71,7 @@ class _HomeNavigatorState extends State<HomeNavigator> {
   }
 
   void _navToSettings(BuildContext context) {
-    Navigator.push(context, MaterialPageRoute(builder: (context) => ProfileScreen()));
+    Navigator.push(context, MaterialPageRoute(builder: (context) => const ProfileScreen()));
   }
 
   @override
@@ -86,55 +85,68 @@ class _HomeNavigatorState extends State<HomeNavigator> {
           // check if async task has resolved
           if (snapshot.connectionState == ConnectionState.done) {
             if (snapshot.hasData) {
-              return Scaffold(
-                appBar: AppBar(
-                  actions: [
-                    IconButton(
-                      iconSize: 45,
-                      onPressed: () => _navToSettings(context),
-                      icon: const Icon(Icons.person_outline_rounded)
-                    ),
-                  ],
-                ),
-                bottomNavigationBar: BottomNavigationBar(
-                  currentIndex: screenIndex,
-                  onTap: _updateScreenIndex,
-                  showSelectedLabels: false,
-                  showUnselectedLabels: false,
-                  iconSize: 45,
-                  items: const <BottomNavigationBarItem>[
-                    BottomNavigationBarItem(
-                      icon: Icon(Icons.photo_library), 
-                      label: "Cards",
-                    ),          
-                    BottomNavigationBarItem(
-                      icon: Icon(Icons.home_rounded), 
-                      label: 'Home',
-                    ),
-                    BottomNavigationBarItem(
-                      icon: Icon(Icons.album_outlined), 
-                      label: 'Memos',
-                    ),
-                  ]
-                ),
+              return DefaultTabController(
+                length: 2, 
+                child: Scaffold(
+                  appBar: AppBar(
+                    actions: [
+                      IconButton(
+                        iconSize: 45,
+                        onPressed: () => _navToSettings(context),
+                        icon: const Icon(Icons.person_outline_rounded)
+                      ),
+                    ],
+                    bottom: screenIndex != 1 ? const TabBar(
+                      tabs: [
+                        Tab(text: "Inbox"),
+                        Tab(text: "Outbox"),
+                      ],
+                    ) : null,
+                  ),
+                  bottomNavigationBar: BottomNavigationBar(
+                    currentIndex: screenIndex,
+                    onTap: _updateScreenIndex,
+                    showSelectedLabels: false,
+                    showUnselectedLabels: false,
+                    iconSize: 45,
+                    items: const <BottomNavigationBarItem>[
+                      BottomNavigationBarItem(
+                        icon: Icon(Icons.photo_library), 
+                        label: "Cards",
+                      ),          
+                      BottomNavigationBarItem(
+                        icon: Icon(Icons.favorite), 
+                        label: 'Home',
+                      ),
+                      BottomNavigationBarItem(
+                        icon: Icon(Icons.album), 
+                        label: 'Memos',
+                      ),
+                    ]
+                  ),
 
-                // Actual screens for the tabs
-                body: <Widget>[
-                  Card(
-                    shadowColor: Colors.transparent,
-                    margin: const EdgeInsets.all(8.0),
-                    child: SizedBox.expand(
-                      child: Center(
-                        child: Text(
-                          'home',
-                          style: theme.textTheme.titleLarge,
+                  // Actual screens for the tabs
+                  body: <Widget>[
+                    Card(
+                      shadowColor: Colors.transparent,
+                      margin: const EdgeInsets.all(8.0),
+                      child: SizedBox.expand(
+                        child: Center(
+                          child: Text(
+                            'home',
+                            style: theme.textTheme.titleLarge,
+                          ),
                         ),
                       ),
                     ),
-                  ),
-                  HomeScreen(data: snapshot.data!),
-                  const AudioLogScreen(),
-                ][screenIndex],
+                    HomeScreen(data: snapshot.data!),
+                    AudioLogScreen(
+                      partnerName: snapshot.data!.partnerSettings?.nickName ?? "",
+                      group: snapshot.data!.coupleInfo?.users ?? [],
+                      coupleId: snapshot.data!.coupleId,
+                    ),
+                  ][screenIndex],
+                )
               );
             } else {
               return SetupNavigator(reload: reloadPartnerSettings,);

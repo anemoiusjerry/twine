@@ -7,10 +7,9 @@ abstract class IPartnerSettingRepository {
 }
 
 class PartnerSettingRepository implements IPartnerSettingRepository {
-  final FirebaseFirestore db;
   late CollectionReference<Map<String, dynamic>> partnerTable;
 
-  PartnerSettingRepository(this.db) {
+  PartnerSettingRepository(db) {
     partnerTable = db.collection("partnerSettings");
   }
 

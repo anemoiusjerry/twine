@@ -6,11 +6,13 @@ class HomeDataModel {
   final PartnerSettings? partnerSettings;
   final String imageUrl;
   final String storagePath;
+  final String coupleId;
 
   HomeDataModel(
     this.coupleInfo,
     this.partnerSettings, 
     this.imageUrl,
     this.storagePath,
+    this.coupleId,
   );
 }

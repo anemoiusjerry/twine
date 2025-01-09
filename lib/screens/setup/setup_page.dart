@@ -59,10 +59,10 @@ class _SetupPageState extends State<SetupPage> {
 
   @override
   Widget build(BuildContext context) {
-    final theme = Theme.of(context).colorScheme;
+    final theme = Theme.of(context);
 
     return Container(
-      color: theme.primary, 
+      color: theme.colorScheme.primary, 
       child: Padding(
         padding: const EdgeInsets.all(40),
         child: Column(
@@ -102,9 +102,9 @@ class _SetupPageState extends State<SetupPage> {
                 width: 20,
                 height: 20,
                 child: CircularProgressIndicator(color: Colors.white)
-              ) : const Text(
+              ) : Text(
                 "Submit", 
-                style: TextStyle(color: Colors.white),
+                style: theme.textTheme.displayMedium,
               )
             )
           ],

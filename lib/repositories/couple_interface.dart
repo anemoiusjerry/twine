@@ -7,10 +7,9 @@ abstract class ICoupleRepository {
 }
 
 class CoupleRepository implements ICoupleRepository {
-  final FirebaseFirestore db;
   late CollectionReference<Map<String, dynamic>> couplesTable;
 
-  CoupleRepository(this.db) {
+  CoupleRepository(db) {
     couplesTable = db.collection("couples");
   }
 
